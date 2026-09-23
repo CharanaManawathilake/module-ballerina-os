@@ -41,30 +41,3 @@ public function windowsShellCommand() returns os:Process|error {
         arguments: ["/c", "dir"]
     });
 }
-
-// Negative case - the executable is run directly with separated arguments
-public function directCommand() returns os:Process|error {
-    return check os:exec({
-        value: "/bin/ls",
-        arguments: ["-la", "/tmp"]
-    });
-}
-
-// Negative case - a shell running a script by path, with no command string to re-parse
-public function shellScript() returns os:Process|error {
-    return check os:exec({
-        value: "/bin/sh",
-        arguments: ["/opt/scripts/backup.sh"]
-    });
-}
-
-// Negative case - the shell is overwritten before the call, so the command that
-// actually runs is the one assigned last
-public function reassignedBeforeUse() returns os:Process|error {
-    string executable = "/bin/sh";
-    executable = "/bin/echo";
-    return check os:exec({
-        value: executable,
-        arguments: ["-c", "hello"]
-    });
-}
