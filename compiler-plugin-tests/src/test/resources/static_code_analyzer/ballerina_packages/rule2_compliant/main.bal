@@ -72,3 +72,25 @@ public function assignedAfterUse(string userInput) returns os:Error? {
     mode = userInput;
     return;
 }
+
+// The compliant examples from the rule documentation
+public function configure(string userInput) returns os:Error? {
+    if !["production", "staging"].some(mode => mode == userInput) {
+        return error("unknown mode");
+    }
+    check os:setEnv("APP_MODE", userInput);
+}
+
+public function setConfigPath(string configPath) returns string|error {
+    // Compliant: input restricted to alphanumeric characters before use
+    if (re `^[a-zA-Z0-9]*$`).isFullMatch(configPath) {
+        os:Error? err = os:setEnv("CONFIG_PATH", configPath);
+
+        if err is os:Error {
+            return error("Failed to set environment variable");
+        }
+        return "Environment variable set successfully";
+    } else {
+        return error("Invalid input: Only alphanumeric characters are allowed");
+    }
+}

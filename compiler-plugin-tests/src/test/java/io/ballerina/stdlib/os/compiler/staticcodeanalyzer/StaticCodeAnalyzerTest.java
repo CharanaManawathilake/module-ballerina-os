@@ -57,7 +57,6 @@ public class StaticCodeAnalyzerTest {
             .get("../", "compiler-plugin", "src", "main", "resources", "rules.json").toAbsolutePath();
     private static final Path DISTRIBUTION_PATH = Paths.get("../", "target", "ballerina-runtime");
     private static final String COMPLIANT_SUFFIX = "_compliant";
-    private static final String SPEC_EXAMPLES = "spec_examples";
     private static final String OS_RULE_PREFIX = "ballerina/os:";
 
     @Test
@@ -135,33 +134,6 @@ public class StaticCodeAnalyzerTest {
     }
 
     /**
-     * Each non-compliant example in section 5 of the specification reports the rule it illustrates, and no other.
-     */
-    @Test
-    public void testSpecNonCompliantExamples() {
-        ByteArrayOutputStream console = new ByteArrayOutputStream();
-        TestRunner testRunner = scanCompilingPackage(SPEC_EXAMPLES, new PrintStream(console, true, UTF_8));
-
-        List<Issue> issues = testRunner.getIssues().stream()
-                .filter(issue -> issue.rule().id().startsWith(OS_RULE_PREFIX))
-                .toList();
-        Assert.assertEquals(issues.size(), 4, "Unexpected OS issues for the specification examples: "
-                + issues.stream().map(issue -> issue.rule().id() + " at " + issue.location().lineRange()).toList());
-        Assertions.assertIssue(issues, 0, "ballerina/os:1", "main.bal", 22, 22, Source.BUILT_IN);
-        Assertions.assertIssue(issues, 1, "ballerina/os:2", "main.bal", 27, 27, Source.BUILT_IN);
-        Assertions.assertIssue(issues, 2, "ballerina/os:3", "main.bal", 32, 32, Source.BUILT_IN);
-        Assertions.assertIssue(issues, 3, "ballerina/os:4", "main.bal", 37, 37, Source.BUILT_IN);
-    }
-
-    /**
-     * The compliant examples in section 5 of the specification report no OS rule.
-     */
-    @Test
-    public void testSpecCompliantExamples() {
-        assertNoOsIssues(SPEC_EXAMPLES + COMPLIANT_SUFFIX);
-    }
-
-    /**
      * Scan the package and confirm no OS rule reports on it.
      * <p>
      * Every OS rule is checked, not only the one the package is written for, so a fix for one rule that trips
@@ -215,7 +187,7 @@ public class StaticCodeAnalyzerTest {
         switch (rule) {
             case AVOID_UNSANITIZED_CMD_ARGS:
                 // The fixture runs `/bin/sh -c`, so it also triggers the shell invocation rule
-                Assert.assertEquals(issues.size(), 5);
+                Assert.assertEquals(issues.size(), 7);
                 Assertions.assertIssue(issues, 0, "ballerina/os:1", "main.bal",
                         22, 25, Source.BUILT_IN);
                 Assertions.assertIssue(issues, 1, "ballerina/os:3", "main.bal",
@@ -227,10 +199,15 @@ public class StaticCodeAnalyzerTest {
                         48, 51, Source.BUILT_IN);
                 Assertions.assertIssue(issues, 4, "ballerina/os:1", "main.bal",
                         58, 61, Source.BUILT_IN);
+                // The non-compliant examples from the rule documentation
+                Assertions.assertIssue(issues, 5, "ballerina/os:1", "main.bal",
+                        68, 68, Source.BUILT_IN);
+                Assertions.assertIssue(issues, 6, "ballerina/os:1", "main.bal",
+                        76, 79, Source.BUILT_IN);
                 break;
             case AVOID_UNSANITIZED_ENV_VARS:
                 index = 0;
-                Assert.assertEquals(issues.size(), 4);
+                Assert.assertEquals(issues.size(), 6);
                 Assertions.assertIssue(issues, index++, "ballerina/os:2", "main.bal",
                         19, 22, Source.BUILT_IN);
                 // The parameter reaches the value through a write inside a nested block
@@ -239,11 +216,16 @@ public class StaticCodeAnalyzerTest {
                 // Conditions that do not validate the value written are not sanitization
                 Assertions.assertIssue(issues, index++, "ballerina/os:2", "main.bal",
                         39, 39, Source.BUILT_IN);
-                Assertions.assertIssue(issues, index, "ballerina/os:2", "main.bal",
+                Assertions.assertIssue(issues, index++, "ballerina/os:2", "main.bal",
                         47, 47, Source.BUILT_IN);
+                // The non-compliant examples from the rule documentation
+                Assertions.assertIssue(issues, index++, "ballerina/os:2", "main.bal",
+                        54, 54, Source.BUILT_IN);
+                Assertions.assertIssue(issues, index, "ballerina/os:2", "main.bal",
+                        59, 59, Source.BUILT_IN);
                 break;
             case AVOID_SHELL_INVOCATION:
-                Assert.assertEquals(issues.size(), 4);
+                Assert.assertEquals(issues.size(), 5);
                 Assertions.assertIssue(issues, 0, "ballerina/os:3", "main.bal",
                         20, 23, Source.BUILT_IN);
                 Assertions.assertIssue(issues, 1, "ballerina/os:3", "main.bal",
@@ -253,13 +235,19 @@ public class StaticCodeAnalyzerTest {
                 // `cmd.exe` carries no path, so it is also resolved through PATH
                 Assertions.assertIssue(issues, 3, "ballerina/os:4", "main.bal",
                         39, 39, Source.BUILT_IN);
+                // The non-compliant example from the rule documentation
+                Assertions.assertIssue(issues, 4, "ballerina/os:3", "main.bal",
+                        46, 46, Source.BUILT_IN);
                 break;
             case AVOID_UNQUALIFIED_EXECUTABLE_PATH:
-                Assert.assertEquals(issues.size(), 2);
+                Assert.assertEquals(issues.size(), 3);
                 Assertions.assertIssue(issues, 0, "ballerina/os:4", "main.bal",
                         21, 21, Source.BUILT_IN);
                 Assertions.assertIssue(issues, 1, "ballerina/os:4", "main.bal",
                         30, 30, Source.BUILT_IN);
+                // The non-compliant example from the rule documentation
+                Assertions.assertIssue(issues, 2, "ballerina/os:4", "main.bal",
+                        37, 37, Source.BUILT_IN);
                 break;
             default:
                 Assert.fail("Unhandled rule in validateIssues: " + rule);

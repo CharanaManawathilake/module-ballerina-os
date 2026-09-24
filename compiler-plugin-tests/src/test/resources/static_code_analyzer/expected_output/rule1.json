@@ -63,5 +63,31 @@
       "id": "ballerina/os:1"
     },
     "source": "BUILT_IN"
+  },
+  {
+    "location": {
+      "filePath": "main.bal",
+      "startLine": 68,
+      "endLine": 68,
+      "startColumn": 17,
+      "endColumn": 68
+    },
+    "rule": {
+      "id": "ballerina/os:1"
+    },
+    "source": "BUILT_IN"
+  },
+  {
+    "location": {
+      "filePath": "main.bal",
+      "startLine": 76,
+      "endLine": 79,
+      "startColumn": 30,
+      "endColumn": 6
+    },
+    "rule": {
+      "id": "ballerina/os:1"
+    },
+    "source": "BUILT_IN"
   }
 ]

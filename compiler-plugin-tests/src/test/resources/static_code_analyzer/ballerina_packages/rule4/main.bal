@@ -32,3 +32,8 @@ public function unqualifiedCommandViaVariable() returns os:Process|error {
         arguments: ["status"]
     });
 }
+
+// The non-compliant example from the rule documentation
+public function status() returns os:Process|error {
+    return check os:exec({value: "git", arguments: ["status"]});
+}

@@ -41,3 +41,8 @@ public function windowsShellCommand() returns os:Process|error {
         arguments: ["/c", "dir"]
     });
 }
+
+// The non-compliant example from the rule documentation
+public function countFiles() returns os:Process|error {
+    return check os:exec({value: "/bin/sh", arguments: ["-c", "ls /var/data | wc -l"]});
+}

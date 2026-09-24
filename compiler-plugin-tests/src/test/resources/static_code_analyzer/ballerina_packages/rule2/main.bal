@@ -49,3 +49,17 @@ public function setEnvOtherValueChecked(string userInput, string mode) returns o
     }
     return;
 }
+
+// The non-compliant examples from the rule documentation
+public function configure(string userInput) returns os:Error? {
+    check os:setEnv("APP_MODE", userInput);
+}
+
+public function setConfigPath(string configPath) returns error? {
+    // Noncompliant: user-supplied input flows into os:setEnv
+    os:Error? err = os:setEnv("CONFIG_PATH", configPath);
+
+    if err is os:Error {
+        return error("Failed to set environment variable");
+    }
+}

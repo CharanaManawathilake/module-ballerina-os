@@ -63,3 +63,20 @@ public function executeOtherValueChecked(string userInput, string mode) returns 
     }
     return;
 }
+
+// The non-compliant examples from the rule documentation
+public function listDirectory(string userInput) returns os:Process|error {
+    return check os:exec({value: "/bin/ls", arguments: [userInput]});
+}
+
+public function execCommand(string input) returns error? {
+    string terminalPath = "/usr/bin/bal";
+    string[] cmd = ["run", input];
+
+    // Noncompliant: user-supplied input flows into an os:exec argument
+    os:Process result = check os:exec({
+        value: terminalPath,
+        arguments: cmd
+    });
+    _ = check result.waitForExit();
+}

@@ -94,3 +94,25 @@ public function executeHelperValidated(string userInput) returns os:Process|erro
 function isAllowedArgument(string argument) returns boolean {
     return ALLOWED_ARGUMENTS.indexOf(argument) != ();
 }
+
+// The compliant examples from the rule documentation
+public function listDirectory(string userInput) returns os:Process|error {
+    if !["reports", "archive"].some(directory => directory == userInput) {
+        return error("unknown directory");
+    }
+    return check os:exec({value: "/bin/ls", arguments: [userInput]});
+}
+
+public function execCommand(string input) returns error? {
+    string terminalPath = "/usr/bin/bal";
+    string[] cmd = ["run", input];
+    string[] allowed = ["main", "main.bal", "bal"];
+
+    if allowed.filter(keyword => keyword.equalsIgnoreCaseAscii(input)).length() > 0 {
+        os:Process result = check os:exec({
+            value: terminalPath,
+            arguments: cmd
+        });
+        _ = check result.waitForExit();
+    }
+}

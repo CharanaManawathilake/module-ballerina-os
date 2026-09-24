@@ -74,3 +74,8 @@ public function reassignedBeforeUse() returns os:Process|error {
         arguments: ["status"]
     });
 }
+
+// The compliant example from the rule documentation
+public function status() returns os:Process|error {
+    return check os:exec({value: "/usr/bin/git", arguments: ["status"]});
+}
